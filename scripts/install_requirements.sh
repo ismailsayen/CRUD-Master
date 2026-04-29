@@ -1,6 +1,6 @@
 #!/bin/bash
 
-home="/home/isayen/Desktop/CRUD-Master/srcs"
+home="/home/hp/Desktop/CRUD-Master/srcs"
 
 services=( "/api-gateway-app" "/billing-app" "/inventory-app" )
 
@@ -15,8 +15,4 @@ source ./envs/activate
 pip install -r requirements.txt
 
 deactivate
-
 done
-
-
-
