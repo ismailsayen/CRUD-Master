@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Get the absolute path of the directory where this script resides
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Define the source directory relative to the script location (parent folder/srcs)
 BASE_SRCS_DIR="$(dirname "$SCRIPT_DIR")/srcs"
 
 services=( "api-gateway-app" "billing-app" "inventory-app" )
+
 
 for d in "${services[@]}"; do
 
