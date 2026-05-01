@@ -5,9 +5,6 @@ app = Flask(__name__)
 def Proxy(url:str):
     return inventory.forward_to_inventory(url)
     
-
-
-
 @app.route("/<path:path>")
 def server(path:str, methods=["GET", "POST", "PUT", "DELETE"]):
     BILLING="http://127.0.0.1:8082"
