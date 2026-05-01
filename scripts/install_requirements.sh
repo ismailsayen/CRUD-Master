@@ -1,12 +1,14 @@
 #!/bin/bash
 
-home="/home/isayen/Desktop/CRUD-Master/srcs"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_SRCS_DIR="$(dirname "$SCRIPT_DIR")/srcs"
 
-services=( "/api-gateway-app" "/billing-app" "/inventory-app" )
+services=( "api-gateway-app" "billing-app" "inventory-app" )
+
 
 for d in "${services[@]}"; do
- 
-cd $home$d
+
+cd "$BASE_SRCS_DIR/$d" || { echo "Directory $d not found"; continue; }
 
 python3 -m venv envs
 
