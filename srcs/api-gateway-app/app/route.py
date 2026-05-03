@@ -5,8 +5,6 @@ import pika
 
 services_bp= Blueprint("services_bp",__name__)
 
-BILLING=f"http://{Config.BILLING_HOST}:{Config.BILLING_PORT}"
-
 def forward_to_inventory(url:str):
     try:
         headers = {}
@@ -30,17 +28,25 @@ def forward_to_inventory(url:str):
         return  jsonify({"message":"CONNECTION REFUSED"}),503
     
 def billing_service():
+    data=request.get_json()
+    if not data:
+        return jsonify({"message":"Request Body is required."}), 400
+    
+    required_fields=["user_id", "number_of_items","total_amount"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"message":f"{field} is required."}), 400
     try:
         credential=pika.PlainCredentials(Config.RABBITMQ_USER,Config.RABBITMQ_PASS)
         params=pika.ConnectionParameters(host=Config.RABBITMQ_HOST,port=Config.RABBITMQ_PORT,credentials=credential,virtual_host=Config.RABBITMQ_VHOST)
         connection=pika.BlockingConnection(params)
         channel = connection.channel()
-        channel.queue_declare(queue='billing_queue', durable=True, arguments={'x-queue-type': 'quorum'})
-        channel.basic_publish(exchange='',routing_key='billing_queue',body=request.get_json())
+        channel.queue_declare(queue=Config.RABBITMQ_QUEUE, durable=True, arguments={'x-queue-type': 'quorum'})
+        channel.basic_publish(exchange='',routing_key='billing_queue',body=request.get_data())
         connection.close()
         return jsonify({"message":"message added to queue seccessfully"}), 200
     except Exception as e:
-        return jsonify({"message":"message added to queue seccessfully"}), 503
+        return jsonify({"error": f"Could not queue billing request: {str(e)}"}), 503
          
 
 
