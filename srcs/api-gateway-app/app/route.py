@@ -1,0 +1,58 @@
+from flask import request,Response,jsonify,Blueprint
+from .config import Config
+import requests
+import pika
+
+services_bp= Blueprint("services_bp",__name__)
+
+BILLING=f"http://{Config.BILLING_HOST}:{Config.BILLING_PORT}"
+
+def forward_to_inventory(url:str):
+    try:
+        headers = {}
+        for key, value in request.headers:
+            if key != "Host":
+                headers[key] = value        
+        resp=requests.request(
+            method=request.method,
+            url=url,
+            headers=headers,
+            data=request.data,
+            cookies=request.cookies,
+            allow_redirects=False
+        )
+        response = Response(resp.content, resp.status_code)
+        for key, value in resp.headers.items():
+            response.headers[key] = value
+
+        return response
+    except requests.exceptions.ConnectionError :
+        return  jsonify({"message":"CONNECTION REFUSED"}),503
+    
+def billing_service():
+    try:
+        credential=pika.PlainCredentials(Config.RABBITMQ_USER,Config.RABBITMQ_PASS)
+        params=pika.ConnectionParameters(host=Config.RABBITMQ_HOST,port=Config.RABBITMQ_PORT,credentials=credential,virtual_host=Config.RABBITMQ_VHOST)
+        connection=pika.BlockingConnection(params)
+        channel = connection.channel()
+        channel.queue_declare(queue='billing_queue', durable=True, arguments={'x-queue-type': 'quorum'})
+        channel.basic_publish(exchange='',routing_key='billing_queue',body=request.get_json())
+        connection.close()
+        return jsonify({"message":"message added to queue seccessfully"}), 200
+    except Exception as e:
+        return jsonify({"message":"message added to queue seccessfully"}), 503
+         
+
+
+    
+@services_bp.route("/<path:path>")
+def server(path:str):
+    
+    if path.startswith("api/movies"):
+        return forward_to_inventory(f"http://{Config.INVENTORY_HOST}:{Config.INVENTORY_PORT}/{path}")
+    elif path.startswith("api/billing"):
+        return billing_service()
+    else:
+        return jsonify({"message":"SERVICE NOT FOUND"}), 404     
+    
+    
