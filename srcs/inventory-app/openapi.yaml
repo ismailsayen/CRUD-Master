@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: Inventory API
+  description: API for managing a movie inventory database. This service allows for creating, retrieving, updating, and deleting movie records stored in PostgreSQL.
+  version: 1.0.0
+servers:
+  - url: /api/movies
+    description: Inventory Service endpoints (routed through the API Gateway)
+paths:
+  /:
+    get:
+      summary: List all movies
+      description: Returns a list of all movies in the inventory. Supports filtering by title.
+      parameters:
+        - name: title
+          in: query
+          description: Filter movies by title using a case-insensitive substring search.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of movie objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    post:
+      summary: Create a new movie
+      description: Adds a new movie record to the PostgreSQL database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '201':
+          description: Movie created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+    delete:
+      summary: Delete all movies
+      description: Removes all movie records from the database for a clean slate.
+      responses:
+        '204':
+          description: All movies deleted successfully.
+  /{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique identifier of the movie.
+        schema:
+          type: integer
+    get:
+      summary: Get movie by ID
+      responses:
+        '200':
+          description: Detailed movie information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found.
+    put:
+      summary: Update a movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '200':
+          description: Movie updated successfully.
+        '404':
+          description: Movie not found.
+    delete:
+      summary: Delete a movie by ID
+      responses:
+        '204':
+          description: Movie deleted successfully.
+        '404':
+          description: Movie not found.
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "A new movie"
+        description:
+          type: string
+          example: "Very short description"
+    MovieInput:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          example: "The Matrix"
+        description:
+          type: string
+          example: "A computer hacker learns about the true nature of his reality."
