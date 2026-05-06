@@ -1,10 +1,9 @@
 from flask import Flask
+from app import create_app
+from app.route import start_consoming
 
-app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, Biiling!</p>"
+app=create_app()
 
 if __name__ == "__main__":
-    app.run()
+    start_consoming(app)
