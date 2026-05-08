@@ -42,7 +42,7 @@ def billing_service():
         connection=pika.BlockingConnection(params)
         channel = connection.channel()
         channel.queue_declare(queue=Config.RABBITMQ_QUEUE, durable=True, arguments={'x-queue-type': 'quorum'})
-        channel.basic_publish(exchange='',routing_key='billing_queue',body=request.get_data())
+        channel.basic_publish(exchange='',routing_key=Config.RABBITMQ_QUEUE,body=request.get_data())
         connection.close()
         return jsonify({"message":"message added to queue seccessfully"}), 200
     except Exception as e:
@@ -51,12 +51,13 @@ def billing_service():
 
 
     
-@services_bp.route("/<path:path>")
+@services_bp.route("/<path:path>",methods=["GET","POST","DELETE","PUT"])
 def server(path:str):
     
     if path.startswith("api/movies"):
         return forward_to_inventory(f"http://{Config.INVENTORY_HOST}:{Config.INVENTORY_PORT}/{path}")
     elif path.startswith("api/billing"):
+        
         return billing_service()
     else:
         return jsonify({"message":"SERVICE NOT FOUND"}), 404     

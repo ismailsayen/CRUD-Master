@@ -5,7 +5,7 @@ load_dotenv()
 
 class Config:
     API_GATEWAY_PORT=environ.get('API_GATEWAY_PORT')
-    
+    API_GATEWAY_HOST=environ.get('API_GATEWAY_HOST')
     BILLING_HOST=environ.get('BILLING_HOST')
     BILLING_PORT=environ.get('BILLING_PORT')
     
