@@ -16,10 +16,13 @@ tee << end > /home/vagrant/api-gateway-app/.env
 
 API_GATEWAY_PORT= $API_GATEWAY_PORT
 API_GATEWAY_HOST=$API_GATEWAY_HOST
-RABBITMQ_USER= $RABBITMQ_USER
-RABBITMQ_PASS= $RABBITMQ_PASS
-RABBITMQ_HOST= $RABBITMQ_HOST
-RABBITMQ_PORT= $RABBITMQ_PORT
+RABBITMQ_USER=$RABBITMQ_USER
+RABBITMQ_PASS=$RABBITMQ_PASS
+RABBITMQ_HOST=$RABBITMQ_HOST
+RABBITMQ_PORT=$RABBITMQ_PORT
+RABBITMQ_QUEUE=$RABBITMQ_QUEUE
+RABBITMQ_VHOST=$RABBITMQ_VHOST
+
 end
 
 cd /home/vagrant/api-gateway-app/
@@ -27,4 +30,6 @@ python3 -m venv envs
 source ./envs/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
-pm2 start server.py --name api_gateway
+python_path=$(which python3)
+pm2 start server.py --name api_gateway  --interpreter $python_path
+

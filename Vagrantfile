@@ -10,6 +10,35 @@ end
 load_env()
 
 Vagrant.configure("2") do |config|
+  
+  config.vm.define "billing" do |billing|
+    billing.vm.post_up_message="--------------billing------------------ "
+    billing.vm.box = "ubuntu/jammy64"
+    billing.vm.hostname="billing"
+    billing.vm.network "private_network", ip: "192.168.56.11"
+    billing.vm.synced_folder "srcs/billing-app/", "/home/vagrant/billing-app", type: "rsync",
+      rsync__exclude: [
+        "envs",
+        "__pycache__"
+      ]
+    billing.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 1
+    end
+    
+    billing.vm.provision "shell" do |sh|
+      sh.path = "scripts/billing_setup.sh"
+      # sh.env = {
+      #   API_GATEWAY_PORT: ENV['API_GATEWAY_PORT'],
+      #   API_GATEWAY_HOST: ENV['API_GATEWAY_HOST'],
+      #   RABBITMQ_USER: ENV['RABBITMQ_USER'],
+      #   RABBITMQ_PASS: ENV['RABBITMQ_PASS'],
+      #   RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
+      #   RABBITMQ_PORT: ENV['RABBITMQ_PORT'],
+      # }
+    end
+  end
+
   config.vm.define "api_gateway" do |api_gateway|
     api_gateway.vm.post_up_message="--------------api_gateway------------------ "
     api_gateway.vm.box = "ubuntu/jammy64"
@@ -33,8 +62,13 @@ Vagrant.configure("2") do |config|
         RABBITMQ_PASS: ENV['RABBITMQ_PASS'],
         RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
         RABBITMQ_PORT: ENV['RABBITMQ_PORT'],
+        RABBITMQ_VHOST: ENV['RABBITMQ_VHOST'],
+        RABBITMQ_QUEUE: ENV['RABBITMQ_QUEUE']
       }
     end
   end
+
+
+
 end
 
