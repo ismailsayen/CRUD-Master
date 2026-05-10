@@ -1,13 +1,13 @@
-def load_env()
-  File.foreach(".env") do |line|
-    if !line.start_with?("#")
-      key, value = line.split('=', 2)
-      ENV[key] = value
-    end
+def load_env(path)
+  File.readlines(path).each do |line|
+    next if line.strip.empty?
+    next if line.strip.start_with?("#")
+
+    key, value = line.strip.split("=", 2)
+    ENV[key] = value if key && value
   end
 end
-
-load_env()
+load_env(".env")
 
 Vagrant.configure("2") do |config|
   
@@ -28,14 +28,16 @@ Vagrant.configure("2") do |config|
     
     billing.vm.provision "shell" do |sh|
       sh.path = "scripts/billing_setup.sh"
-      # sh.env = {
-      #   API_GATEWAY_PORT: ENV['API_GATEWAY_PORT'],
-      #   API_GATEWAY_HOST: ENV['API_GATEWAY_HOST'],
-      #   RABBITMQ_USER: ENV['RABBITMQ_USER'],
-      #   RABBITMQ_PASS: ENV['RABBITMQ_PASS'],
-      #   RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
-      #   RABBITMQ_PORT: ENV['RABBITMQ_PORT'],
-      # }
+      sh.env = {
+        DB_URI: ENV['BILLING_DATABASE_URL'],
+        USER_DB:ENV['USER_DB'],
+        PASSWORD_DB:ENV['PASSWORD_DB'],
+        RABBITMQ_USER: ENV['RABBITMQ_USER'],
+        RABBITMQ_PASS: ENV['RABBITMQ_PASS'],
+        RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
+        RABBITMQ_VHOST: ENV['RABBITMQ_VHOST'],
+        RABBITMQ_PORT: ENV['RABBITMQ_PORT'],
+      }
     end
   end
 
