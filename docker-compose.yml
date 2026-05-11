@@ -23,6 +23,15 @@ services:
       - "5433:5432"
     volumes:
       - billing_data:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/data
 volumes:
   inventory_data:
   billing_data:
+  rabbitmq_data:
