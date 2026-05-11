@@ -6,8 +6,7 @@ load_dotenv()
 
 class Config:
     
-    DB_URI=environ.get("BILLING_DATABASE_URL")
-    
+    BILLING_DATABASE_URL=environ.get("BILLING_DATABASE_URL")
     
     RABBITMQ_USER=environ.get("RABBITMQ_USER")
     RABBITMQ_PASS=environ.get("RABBITMQ_PASS")

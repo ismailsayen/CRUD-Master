@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
     billing.vm.provision "shell" do |sh|
       sh.path = "scripts/billing_setup.sh"
       sh.env = {
-        DB_URI: ENV['BILLING_DATABASE_URL'],
+        BILLING_DATABASE_URL: ENV['BILLING_DATABASE_URL'],
         USER_DB:ENV['USER_DB'],
         PASSWORD_DB:ENV['PASSWORD_DB'],
         RABBITMQ_USER: ENV['RABBITMQ_USER'],
@@ -37,6 +37,7 @@ Vagrant.configure("2") do |config|
         RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
         RABBITMQ_VHOST: ENV['RABBITMQ_VHOST'],
         RABBITMQ_PORT: ENV['RABBITMQ_PORT'],
+        RABBITMQ_QUEUE: ENV['RABBITMQ_QUEUE']
       }
     end
   end
