@@ -10,6 +10,34 @@ end
 load_env(".env")
 
 Vagrant.configure("2") do |config|
+
+  config.vm.define "inventory" do |inventory|
+    inventory.vm.post_up_message="--------------inventory------------------ "
+    inventory.vm.box = "ubuntu/jammy64"
+    inventory.vm.hostname="inventory"
+    inventory.vm.network "private_network", ip: "192.168.56.12"
+    inventory.vm.synced_folder "srcs/inventory-app/", "/home/vagrant/inventory-app", type: "rsync",
+      rsync__exclude: [
+        "envs",
+        "__pycache__"
+      ]
+    inventory.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 1
+    end
+    
+    inventory.vm.provision "shell" do |sh|
+      sh.path = "scripts/inventory_setup.sh"
+      sh.env = {
+        INVENTORY_DATABASE_URL: ENV['INVENTORY_DATABASE_URL'],
+        USER_DB:ENV['USER_DB'],
+        PASSWORD_DB:ENV['PASSWORD_DB'], 
+        INVENTORY_PORT:ENV['INVENTORY_PORT'],
+        INVENTORY_HOST:ENV['INVENTORY_HOST']
+      }
+    end
+  end
+
   
   config.vm.define "billing" do |billing|
     billing.vm.post_up_message="--------------billing------------------ "
@@ -61,6 +89,8 @@ Vagrant.configure("2") do |config|
       sh.env = {
         API_GATEWAY_PORT: ENV['API_GATEWAY_PORT'],
         API_GATEWAY_HOST: ENV['API_GATEWAY_HOST'],
+        INVENTORY_IP: ENV['INVENTORY_IP'],
+        INVENTORY_PORT: ENV['INVENTORY_PORT'],
         RABBITMQ_USER: ENV['RABBITMQ_USER'],
         RABBITMQ_PASS: ENV['RABBITMQ_PASS'],
         RABBITMQ_HOST: ENV['RABBITMQ_HOST'],
