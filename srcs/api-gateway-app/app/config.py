@@ -10,6 +10,7 @@ class Config:
     BILLING_PORT=environ.get('BILLING_PORT')
     
     INVENTORY_HOST=environ.get('INVENTORY_HOST')
+    INVENTORY_IP=environ.get('INVENTORY_IP')
     INVENTORY_PORT=environ.get('INVENTORY_PORT')
     
     RABBITMQ_USER=environ.get("RABBITMQ_USER")

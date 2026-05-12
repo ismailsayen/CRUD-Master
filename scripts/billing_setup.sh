@@ -1,15 +1,18 @@
 set -e 
 
-#install dependecies
+echo "Updating packages..."
 sudo apt-get update -y
 
-sudo apt-get install -y python3-venv
+echo "Installing dependencies..."
+sudo apt-get install -y \
+    python3-venv \
+    npm \
+    postgresql \
+    postgresql-contrib \
+    rabbitmq-server
 
-sudo apt install npm -y
-
-sudo npm install pm2@latest -g 
-
-sudo apt install postgresql postgresql-contrib -y
+echo "Installing PM2..."
+sudo npm install -g pm2
 
 sudo -u postgres psql  << EOF
 CREATE USER $USER_DB WITH PASSWORD '$PASSWORD_DB';
@@ -17,18 +20,17 @@ ALTER USER $USER_DB CREATEDB;
 CREATE DATABASE billing_db OWNER $USER_DB;
 EOF
 
-sudo apt-get install rabbitmq-server -y --fix-missing
 
 
-sudo rabbitmqctl add_user $RABBITMQ_USER $RABBITMQ_PASS
+sudo rabbitmqctl add_user $RABBITMQ_USER $RABBITMQ_PASS || true
 
-sudo rabbitmqctl set_permissions -p $RABBITMQ_VHOST $RABBITMQ_USER ".*" ".*" ".*"
+sudo rabbitmqctl set_permissions -p $RABBITMQ_VHOST $RABBITMQ_USER ".*" ".*" ".*" || true
 
 sudo systemctl restart rabbitmq-server.service 
 
 #create .env File
 
-tee << end > /home/vagrant/billing-app/.env
+cat << end > /home/vagrant/billing-app/.env
 
 BILLING_DATABASE_URL=$BILLING_DATABASE_URL
 USER_DB=$USER_DB
@@ -48,3 +50,5 @@ pip install --upgrade pip
 pip install -r requirements.txt
 python_path=$(which python3)
 pm2 start server.py --name billing-app  --interpreter $python_path
+pm2 save
+pm2 startup
