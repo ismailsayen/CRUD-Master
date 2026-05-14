@@ -10,9 +10,9 @@ for d in "${services[@]}"; do
 
 cd "$BASE_SRCS_DIR/$d" || { echo "Directory $d not found"; continue; }
 
-python3 -m venv envs
+python3 -m venv venv
 
-source ./envs/bin/activate
+source ./venv/bin/activate
 
 pip install -r requirements.txt
 

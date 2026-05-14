@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     inventory.vm.network "private_network", ip: "192.168.56.12"
     inventory.vm.synced_folder "srcs/inventory-app/", "/home/vagrant/inventory-app", type: "rsync",
       rsync__exclude: [
-        "envs",
+        "venv",
         "__pycache__"
       ]
     inventory.vm.provider "virtualbox" do |vb|
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
     billing.vm.network "private_network", ip: "192.168.56.11"
     billing.vm.synced_folder "srcs/billing-app/", "/home/vagrant/billing-app", type: "rsync",
       rsync__exclude: [
-        "envs",
+        "venv",
         "__pycache__"
       ]
     billing.vm.provider "virtualbox" do |vb|
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
     api_gateway.vm.network "private_network", ip: "192.168.56.10"
     api_gateway.vm.synced_folder "srcs/api-gateway-app/", "/home/vagrant/api-gateway-app", type: "rsync",
       rsync__exclude: [
-        "envs",
+        "venv",
         "__pycache__"
       ]
     api_gateway.vm.provider "virtualbox" do |vb|
