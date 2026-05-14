@@ -57,6 +57,9 @@ def server(path:str):
     if path.startswith("api/movies"):
         return forward_to_inventory(f"http://{Config.INVENTORY_IP}:{Config.INVENTORY_PORT}/{path}")
     elif path.startswith("api/billing"):
+        if request.method != "POST":
+            return jsonify({"message":"METHOD NOT ALLOWED"}), 405     
+
         return billing_service()
     else:
         return jsonify({"message":"SERVICE NOT FOUND"}), 404     

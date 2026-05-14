@@ -1,0 +1,149 @@
+openapi: 3.1.0
+info:
+  title: API Gateway
+  version: 1.0.0
+  description: >
+    The API Gateway serves as the centralized entry point for the system, responsible for request routing and protocol mediation. It routes external HTTP requests directly to the Inventory API and translates incoming requests into asynchronous messages for the Billing API via RabbitMQ.
+
+paths: 
+  # --- INVENTORY SERVICE (HTTP) ---
+  /api/movies:
+    get:
+      summary: List all movies
+      description: Returns a list of all movies in the inventory. Supports filtering by title.
+      parameters:
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of movie objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    post:
+      summary: Create a new movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '201':
+          description: Movie created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+    delete:
+      summary: Delete all movies
+      responses:
+        '204':
+          description: All movies deleted successfully.
+
+  /api/movies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get movie by ID
+      responses:
+        '200':
+          description: Detailed movie information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found.
+
+  # --- BILLING SERVICE (RabbitMQ) ---
+  /api/billing:
+    post:
+      summary: Queue a billing request
+      description: >
+        Publishes a billing request message to RabbitMQ.
+        The Billing service consumes the message asynchronously and persists it to PostgreSQL as an order.
+      requestBody:
+        required: true
+        content: 
+          application/json: 
+            schema: 
+              $ref: '#/components/schemas/BillingRequest'
+      responses: 
+        "200":
+          description: Billing request queued successfully
+          content:
+            application/json:            
+              examples:
+                queued:
+                  value:
+                    message: Billing request queued successfully
+        "400":
+          description: Missing request body or required fields
+          content:
+            application/json:
+              examples:
+                missing_body:
+                  value:
+                    error: Request body is required
+                missing_field:
+                  value:
+                    error: "'user_id' is required"
+        "503":
+          description: Could not queue billing request (RabbitMQ unavailable or misconfigured)
+          content:
+            application/json:
+              examples:
+                rabbitmq_error:
+                  value:
+                    error: "Could not queue billing request: connection refused"
+
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "The Matrix"
+        description:
+          type: string
+          example: "A computer hacker learns about the true nature of his reality."
+    
+    MovieInput:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+
+    BillingRequest:
+      type: object
+      required:
+        - user_id
+        - number_of_items
+        - total_amount
+      properties:
+        user_id:
+          type: integer
+        number_of_items:
+          type: integer
+        total_amount:
+          type: integer
