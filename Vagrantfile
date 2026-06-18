@@ -33,7 +33,9 @@ Vagrant.configure("2") do |config|
         USER_DB:ENV['USER_DB'],
         PASSWORD_DB:ENV['PASSWORD_DB'], 
         INVENTORY_PORT:ENV['INVENTORY_PORT'],
-        INVENTORY_HOST:ENV['INVENTORY_HOST']
+        INVENTORY_HOST:ENV['INVENTORY_HOST'],
+        INVENTORY_IP:ENV['INVENTORY_IP'],
+        API_GATEWAY_HOST:ENV['API_GATEWAY_HOST']
       }
     end
   end
