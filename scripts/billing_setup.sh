@@ -1,4 +1,9 @@
 set -e 
+sudo ufw --force enable
+sudo ufw default deny incoming 
+sudo ufw allow 22/tcp
+sudo ufw allow from $API_GATEWAY_HOST to $BILLING_HOST port $RABBITMQ_PORT proto tcp
+sudo systemctl restart ufw.service
 
 echo "Updating packages..."
 sudo apt-get update -y
